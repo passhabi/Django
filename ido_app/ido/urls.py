@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -21,19 +22,24 @@ from django.conf.urls.static import static
 from todos.views import *  # todo only homepage is need it.
 import todos.urls
 import search.urls
+import os
 
-urlpatterns = ([
-                   path("", homepage, name='homepage'),
-                   path('todo/', include(todos.urls)),
+urlpatterns = (
+    [
+        path("", homepage, name="homepage"),
+        path("todo/", include(todos.urls)),
+        path("admin/", admin.site.urls),
+        path("login/", signin, name="login"),
+        path("sign-up/", signup, name="signup"),
+        path("logout/", sign_out, name="logout"),
+        path("profile/", profile, name="profile"),
+        path("search/", include(search.urls)),
+    ]
+    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+)
 
-                   path('admin/', admin.site.urls),
-                   path('login/', signin, name='login'),
-                   path('sign-up/', signup, name='signup'),
-                   path('logout/', sign_out, name='logout'),
-                   path('profile/', profile, name='profile'),
-                   path("__debug__/", include("debug_toolbar.urls")),
-
-                   path('search/', include(search.urls)),
-
-               ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-               + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
+if os.path.exists("settings_local"):
+    urlpatterns += [
+        path("__debug__/", include("debug_toolbar.urls")),
+    ]
